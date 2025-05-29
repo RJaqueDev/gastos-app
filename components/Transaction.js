@@ -1,19 +1,33 @@
 import React, { useState } from 'react';
 import { Modal, View, StyleSheet } from 'react-native';
 import { TextInput, Button, Switch, Text, Card } from 'react-native-paper';
+import { addGasto } from '../api/gasto';
 
-const Transaction = ({ visible, onClose }) => {
+const Transaction = ({ visible, onClose, onGastoAgregado }) => {
   const [monto, setMonto] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [cuotizado, setCuotizado] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSave = () => {
-    // Aquí puedes manejar el guardado del gasto
-    console.log({ monto, descripcion, cuotizado });
-    onClose();
-    setMonto('');
-    setDescripcion('');
-    setCuotizado(false);
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      await addGasto({
+        monto,
+        descripcion,
+        cuotizado,
+      });
+      // Limpia los campos y cierra el modal
+      setMonto('');
+      setDescripcion('');
+      setCuotizado(false);
+      if (onGastoAgregado) onGastoAgregado(); // Notifica que se agregó un gasto
+      onClose();
+    } catch (error) {
+      console.log('Error al guardar gasto:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -48,7 +62,13 @@ const Transaction = ({ visible, onClose }) => {
                 color="#7db4f0"
               />
             </View>
-            <Button mode="contained" onPress={handleSave} style={styles.button}>
+            <Button
+              mode="contained"
+              onPress={handleSave}
+              style={styles.button}
+              loading={loading}
+              disabled={loading || !monto || !descripcion}
+            >
               Guardar
             </Button>
             <Button onPress={onClose} style={styles.button} textColor="#7db4f0">

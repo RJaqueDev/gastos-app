@@ -3,7 +3,7 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import { getGastos } from '../api/gasto';
 
-const Saldo = () => {
+const Saldo = ({ refresh }) => {
     const [saldo, setSaldo] = useState(0);
     const [loading, setLoading] = useState(true);
 
@@ -22,7 +22,7 @@ const Saldo = () => {
         };
 
         fetchGastos();
-    }, []);
+    }, [refresh]);
 
     const formatCLP = (value) => {
         return value.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 });
@@ -37,7 +37,7 @@ const Saldo = () => {
     }
 
     return (
-        <View style={styles.centered}>
+        <View style={styles.container}>
             <Card style={styles.card}>
                 <Card.Content>
                     <Text style={styles.saldo}>{formatCLP(saldo)}</Text>
@@ -48,6 +48,10 @@ const Saldo = () => {
 };
 
 const styles = StyleSheet.create({
+    container: {
+        marginVertical: 8, // Reduce el espacio vertical
+        alignItems: 'flex-start',
+    },
     centered: {
         flex: 1,
         justifyContent: 'center',
