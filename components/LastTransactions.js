@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { Card, Text, DataTable, ActivityIndicator } from 'react-native-paper';
 import { getGastos } from '../api/gasto';
 
@@ -37,26 +37,33 @@ const LastTransactions = ({ refresh }) => {
     }
 
     return (
-        <View style={styles.centered}>
+        <View style={styles.container}>
             <Card style={styles.card}>
                 <Card.Title title="Últimos gastos" />
                 <Card.Content>
-                    <DataTable>
-                        <DataTable.Header>
-                            <DataTable.Title>Monto</DataTable.Title>
-                            <DataTable.Title>Descripción</DataTable.Title>
-                            <DataTable.Title>Cuotizado</DataTable.Title>
-                        </DataTable.Header>
+                    {/* Cabeceras de la tabla */}
+                    <View style={styles.tableHeader}>
+                        <Text style={styles.headerText}>Fecha</Text>
+                        <Text style={styles.headerText}>Descripción</Text>
+                        <Text style={styles.headerText}>Monto</Text>
+                    </View>
+
+                    {/* Contenido desplazable */}
+                    <ScrollView style={styles.scrollContainer}>
                         {gastos.map((gasto, id) => (
-                            <DataTable.Row key={id}>
-                                <DataTable.Cell>
+                            <View key={id} style={styles.tableRow}>
+                                <Text style={styles.rowText}>
+                                    {new Date(gasto.fecha).toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                                </Text>
+                                <Text style={styles.rowText}>{gasto.descripcion}</Text>
+                                <Text style={styles.rowText}>
                                     {gasto.monto?.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 })}
-                                </DataTable.Cell>
-                                <DataTable.Cell>{gasto.descripcion}</DataTable.Cell>
-                                <DataTable.Cell>{gasto.tiene_couta ? 'Sí' : 'No'}</DataTable.Cell>
-                            </DataTable.Row>
+                                </Text>
+                            </View>
                         ))}
-                    </DataTable>
+                    </ScrollView>
+
+                    {/* Mensaje si no hay gastos */}
                     {gastos.length === 0 && (
                         <Text style={styles.empty}>No hay gastos registrados.</Text>
                     )}
@@ -67,6 +74,10 @@ const LastTransactions = ({ refresh }) => {
 };
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1, // Asegura que el contenedor ocupe todo el espacio disponible
+        padding: 16,
+    },
     card: {
         borderRadius: 16,
         elevation: 2,
@@ -74,16 +85,44 @@ const styles = StyleSheet.create({
         maxWidth: 500,
         alignSelf: 'center',
     },
-    centered: {
-        // Elimina flex: 1 para evitar que ocupe todo el alto
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginVertical: 8, // Reduce el espacio vertical
+    tableHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: 8,
+        backgroundColor: '#f0f0f0',
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+    },
+    headerText: {
+        flex: 1,
+        textAlign: 'center',
+        fontWeight: 'bold',
+    },
+    scrollContainer: {
+        maxHeight: 400, // Limita la altura para habilitar el scroll
+    },
+    tableRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+    },
+    rowText: {
+        flex: 1,
+        textAlign: 'center',
     },
     empty: {
         textAlign: 'center',
         marginTop: 16,
         color: '#888',
+    },
+    centered: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical: 8, 
+        maxHeight: 400, 
+        overflow: 'hidden'
     },
 });
 
