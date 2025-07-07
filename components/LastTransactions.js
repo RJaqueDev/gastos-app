@@ -47,13 +47,13 @@ const LastTransactions = ({ refresh }) => {
                             <DataTable.Title>Descripción</DataTable.Title>
                             <DataTable.Title>Cuotizado</DataTable.Title>
                         </DataTable.Header>
-                        {gastos.map((gasto, idx) => (
-                            <DataTable.Row key={idx}>
+                        {gastos.map((gasto, id) => (
+                            <DataTable.Row key={id}>
                                 <DataTable.Cell>
                                     {gasto.monto?.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 })}
                                 </DataTable.Cell>
                                 <DataTable.Cell>{gasto.descripcion}</DataTable.Cell>
-                                <DataTable.Cell>{gasto.cuotizado ? 'Sí' : 'No'}</DataTable.Cell>
+                                <DataTable.Cell>{gasto.tiene_couta ? 'Sí' : 'No'}</DataTable.Cell>
                             </DataTable.Row>
                         ))}
                     </DataTable>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, View, StyleSheet } from 'react-native';
-import { TextInput, Button, Switch, Text, Card } from 'react-native-paper';
+import { TextInput, Button, Switch, Text, Card, Snackbar } from 'react-native-paper'; // <-- Agrega Snackbar
 import { addGasto } from '../api/gasto';
 
 const Transaction = ({ visible, onClose, onGastoAgregado }) => {
@@ -8,6 +8,8 @@ const Transaction = ({ visible, onClose, onGastoAgregado }) => {
   const [descripcion, setDescripcion] = useState('');
   const [cuotizado, setCuotizado] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [cantidad, setCantidad] = useState(0);
+  const [showSnackbar, setShowSnackbar] = useState(false); // <-- Nuevo estado
 
   const handleSave = async () => {
     setLoading(true);
@@ -16,11 +18,14 @@ const Transaction = ({ visible, onClose, onGastoAgregado }) => {
         monto,
         descripcion,
         cuotizado,
+        cantidad
       });
       // Limpia los campos y cierra el modal
       setMonto('');
       setDescripcion('');
       setCuotizado(false);
+      setCantidad(0);
+      setShowSnackbar(true); // <-- Muestra el Snackbar
       if (onGastoAgregado) onGastoAgregado(); // Notifica que se agregó un gasto
       onClose();
     } catch (error) {
@@ -44,7 +49,7 @@ const Transaction = ({ visible, onClose, onGastoAgregado }) => {
             <TextInput
               label="Monto"
               value={monto}
-              onChangeText={setMonto}
+              onChangeText={text => setMonto(text.replace(/[^0-9.]/g, ''))}
               keyboardType="numeric"
               style={styles.input}
             />
@@ -61,6 +66,15 @@ const Transaction = ({ visible, onClose, onGastoAgregado }) => {
                 onValueChange={setCuotizado}
                 color="#7db4f0"
               />
+              {cuotizado && (
+                <TextInput
+                  label="Cantidad de cuotas"
+                  value={cantidad ? cantidad.toString() : ''}
+                  onChangeText={text => setCantidad(Number(text.replace(/[^0-9]/g, '')))}
+                  keyboardType="numeric"
+                  style={[styles.input, { width: 140 }]}
+                />
+              )}
             </View>
             <Button
               mode="contained"
@@ -76,6 +90,13 @@ const Transaction = ({ visible, onClose, onGastoAgregado }) => {
             </Button>
           </Card.Content>
         </Card>
+        <Snackbar
+          visible={showSnackbar}
+          onDismiss={() => setShowSnackbar(false)}
+          duration={2000}
+        >
+          Gasto agregado correctamente
+        </Snackbar>
       </View>
     </Modal>
   );
